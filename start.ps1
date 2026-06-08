@@ -17,7 +17,7 @@ Start-Sleep -Seconds 3
 
 # Frontend (Vite + React)
 Write-Host "  [2/2] Starting Frontend (port 5173)..." -ForegroundColor Yellow
-$frontendCmd = "Set-Location '$root\frontend'; Write-Host 'FRONTEND DEV SERVER' -ForegroundColor Yellow; npm run dev"
+$frontendCmd = "Set-Location '$root\frontend'; Write-Host 'FRONTEND DEV SERVER' -ForegroundColor Yellow; fnm env --use-on-cd | Out-String | Invoke-Expression; npm run dev"
 Start-Process powershell -ArgumentList "-NoExit", "-Command", $frontendCmd
 
 Write-Host ""
