@@ -72,7 +72,9 @@ async def get_snapshot():
             "id": thr["id"],
             "pos": {"lat": lat, "lon": lon, "alt": alt},
             "targetSatId": thr["targetSatId"],
-            "timeToCollision": thr["timeToCollision"]
+            "timeToCollision": thr["timeToCollision"],
+            "missDist": thr.get("missDist", None),
+            "autoDetected": thr.get("autoDetected", False)
         })
 
     total_fuel_consumed = round(sum(50.0 - s["fuel_kg"] for s in global_state.satellites), 2)
