@@ -1,32 +1,273 @@
-/* ── Bullseye Plot ── */
+/* ══════════════════════════════════════════
+   THREAT DETECTION BULLSEYE — Enhanced CSS
+   ══════════════════════════════════════════ */
+
 .bullseye-container {
   width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 12px;
+  padding: 14px;
   box-sizing: border-box;
+  position: relative;
+}
+
+/* ── Header ── */
+.bullseye-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
 }
 
 .bullseye-title {
   color: #ffaa00;
-  margin: 0 0 6px;
-  font-size: 0.8rem;
+  margin: 0;
+  font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 2px;
-  text-shadow: 0 0 8px rgba(255, 170, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-shadow: 0 0 10px rgba(255, 170, 0, 0.25);
 }
 
+.bullseye-icon {
+  font-size: 1rem;
+  color: #ffaa00;
+  animation: icon-pulse 3s ease-in-out infinite;
+}
+
+@keyframes icon-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; text-shadow: 0 0 8px rgba(255, 170, 0, 0.5); }
+}
+
+/* Status badge */
+.bullseye-status {
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 1.5px;
+  font-family: 'Courier New', monospace;
+}
+
+.bullseye-status.status-clear {
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.08);
+  border: 1px solid rgba(0, 255, 136, 0.25);
+}
+
+.bullseye-status.status-warning {
+  color: #ff8800;
+  background: rgba(255, 136, 0, 0.08);
+  border: 1px solid rgba(255, 136, 0, 0.3);
+  animation: status-blink 2s ease-in-out infinite;
+}
+
+.bullseye-status.status-critical {
+  color: #ff2255;
+  background: rgba(255, 34, 85, 0.12);
+  border: 1px solid rgba(255, 34, 85, 0.4);
+  animation: status-blink 0.8s ease-in-out infinite;
+}
+
+@keyframes status-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ── Satellite badge ── */
+.bullseye-sat-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.6rem;
+  color: #888;
+  margin-bottom: 8px;
+  padding: 3px 8px;
+  background: rgba(0, 229, 255, 0.04);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 229, 255, 0.08);
+}
+
+.sat-diamond {
+  color: #00ffff;
+  font-size: 0.7rem;
+  text-shadow: 0 0 6px rgba(0, 255, 255, 0.4);
+}
+
+.threat-count {
+  margin-left: auto;
+  color: #666;
+  font-family: monospace;
+  font-size: 0.55rem;
+  letter-spacing: 1px;
+}
+
+/* ── Plot area ── */
 .bullseye-plot {
   flex-grow: 1;
   position: relative;
+  min-height: 0;
 }
 
-.bullseye-legend {
+.bullseye-plot svg {
+  display: block;
+}
+
+/* ── Zone labels ── */
+.zone-label {
+  pointer-events: none;
+}
+
+/* ── Radar sweep animation ── */
+@keyframes bullseye-radar-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.radar-arm {
+  transform-origin: 50px 50px;
+  animation: bullseye-radar-sweep 6s linear infinite;
+}
+
+/* ── Satellite center pulsing ring ── */
+@keyframes center-ring-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+.sat-center-ring {
+  animation: center-ring-pulse 3s ease-in-out infinite;
+}
+
+/* ── Threat pulse ring (for critical) ── */
+@keyframes threat-ring-expand {
+  0% { r: 3; opacity: 0.8; }
+  100% { r: 7; opacity: 0; }
+}
+
+.threat-pulse-ring {
+  animation: threat-ring-expand 1.5s ease-out infinite;
+}
+
+/* ── Tooltip ── */
+.bullseye-tooltip {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10, 10, 20, 0.92);
+  border: 1px solid;
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 140px;
+  backdrop-filter: blur(12px);
+  z-index: 20;
+  pointer-events: none;
+  animation: tooltip-in 0.2s ease-out;
+}
+
+@keyframes tooltip-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.tooltip-header {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-bottom: 4px;
+  font-family: monospace;
+}
+
+.tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.58rem;
+  color: #aaa;
+  padding: 1px 0;
+  gap: 12px;
+}
+
+.tooltip-row span:last-child {
+  font-family: 'Courier New', monospace;
+  color: #ddd;
+  font-weight: 600;
+}
+
+/* ── Stats bar ── */
+.bullseye-stats {
   display: flex;
   justify-content: center;
-  gap: 12px;
-  font-size: 0.55rem;
-  color: #888;
-  margin-top: 4px;
+  gap: 10px;
+  margin-top: 6px;
+  padding: 4px 0;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.5rem;
+  color: #666;
+}
+
+.stat-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  transition: box-shadow 0.3s ease;
+}
+
+.stat-count {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 0.6rem;
+  min-width: 10px;
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+.stat-label {
+  font-size: 0.45rem;
+  letter-spacing: 0.5px;
+  color: #555;
+}
+
+/* ── Mobile adjustments ── */
+@media (max-width: 768px) {
+  .bullseye-container {
+    padding: 10px;
+  }
+
+  .bullseye-title {
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+  }
+
+  .bullseye-status {
+    font-size: 0.5rem;
+    padding: 2px 6px;
+  }
+
+  .bullseye-sat-badge {
+    font-size: 0.55rem;
+    padding: 2px 6px;
+  }
+
+  .bullseye-stats {
+    gap: 6px;
+  }
+
+  .stat-count {
+    font-size: 0.55rem;
+  }
+
+  .bullseye-tooltip {
+    min-width: 120px;
+    padding: 6px 10px;
+  }
 }
