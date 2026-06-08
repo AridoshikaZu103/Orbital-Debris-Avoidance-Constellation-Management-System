@@ -194,6 +194,48 @@ async def simulate_step(req: StepRequest):
         deb["position"] = state[:3]
         deb["velocity"] = state[3:]
 
+    # ── Auto Threat Detection: scan debris proximity to satellites ──
+    PROXIMITY_THRESHOLD_KM = 50.0  # detection radius
+    for sat in global_state.satellites:
+        for deb in global_state.debris:
+            # Check if this debris is already tracked as a threat
+            threat_id = "auto-" + deb["id"] + "-" + sat["id"]
+            if any(t["id"] == threat_id for t in global_state.threats):
+                continue
+
+            # Calculate distance between satellite and debris
+            dx = sat["position"][0] - deb["position"][0]
+            dy = sat["position"][1] - deb["position"][1]
+            dz = sat["position"][2] - deb["position"][2]
+            dist = math.sqrt(dx*dx + dy*dy + dz*dz)
+
+            if dist < PROXIMITY_THRESHOLD_KM:
+                # Estimate TCA from relative velocity
+                dvx = sat["velocity"][0] - deb["velocity"][0]
+                dvy = sat["velocity"][1] - deb["velocity"][1]
+                dvz = sat["velocity"][2] - deb["velocity"][2]
+                rel_vel = math.sqrt(dvx*dvx + dvy*dvy + dvz*dvz)
+                if rel_vel > 0.001:
+                    tca = max(100, dist / rel_vel)
+                else:
+                    tca = 86400.0
+
+                new_threat = {
+                    "id": threat_id,
+                    "type": "THREAT",
+                    "targetSatId": sat["id"],
+                    "timeToCollision": tca,
+                    "position": list(deb["position"]),
+                    "missDist": round(dist, 3),
+                    "autoDetected": True
+                }
+                global_state.threats.append(new_threat)
+                await Database.log_operation(
+                    "AUTO_THREAT_DETECTED",
+                    "Debris " + deb["id"] + " within " + str(round(dist, 1)) + "km of " + sat["name"],
+                    global_state.time
+                )
+
     to_remove = []
     for thr in global_state.threats:
         thr["timeToCollision"] -= req.step_seconds
@@ -205,7 +247,7 @@ async def simulate_step(req: StepRequest):
                 risk = "RED" if is_crit else "YELLOW"
 
                 if not any(c["id"] == "cdm-" + thr["id"] for c in global_state.cdms):
-                    miss_dist = max(0.05, (thr["timeToCollision"] / 3600) * 2)
+                    miss_dist = thr.get("missDist", max(0.05, (thr["timeToCollision"] / 3600) * 2))
                     cdm = {
                         "id": "cdm-" + thr["id"],
                         "risk": risk,
