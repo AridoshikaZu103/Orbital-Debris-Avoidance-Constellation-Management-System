@@ -56,8 +56,10 @@ export default function BullseyePlot({ threats = [], selectedSat = 0, satellites
       const cx = 50 + Math.cos(angle) * radiusPct;
       const cy = 50 + Math.sin(angle) * radiusPct;
 
-      // Miss distance estimation (closer threats → smaller miss distance)
-      const missDist = tca < 1000 ? (tca * 0.002).toFixed(2) : (tca * 0.005).toFixed(1);
+      // Miss distance — use real data from backend if available
+      const missDist = t.missDist != null
+        ? t.missDist.toFixed(2)
+        : (tca < 1000 ? (tca * 0.002).toFixed(2) : (tca * 0.005).toFixed(1));
 
       return {
         id: t.id,
